@@ -52,54 +52,14 @@ namespace DevelopmentChallenge.Data.Classes
         public static string Imprimir(List<FormaGeometrica> formas, int idioma)
         {
             var sb = new StringBuilder();
-            var perimetrodescripcion = "";
-            var formadescripcion = "";
 
             if (!formas.Any())
             {
-                switch (idioma)
-                {
-                    case Castellano:
-                        sb.Append("<h1>Lista vacía de formas!</h1>");
-                        break;
-                    case Ingles:
-                        sb.Append("<h1>Empty list of shapes!</h1>");
-                        break;
-                    case Italiano:
-                        sb.Append("<h1>Lista vuota di forme!</h1>");
-                        break;
-                }
+                sb.Append(TraducirListaVacia(idioma));
             }
             else
             {
-
-                var total = "";
-                var area = "";
-                switch (idioma)
-                {
-                    case Castellano:
-                        sb.Append("<h1>Reporte de Formas</h1>");
-                        formadescripcion = "formas";
-                        perimetrodescripcion = "Perimetro";
-                        total = "TOTAL";
-                        area = "Area";
-                        break;
-                    case Ingles:
-                        sb.Append("<h1>Shapes report</h1>");
-                        formadescripcion = "shapes";
-                        perimetrodescripcion = "Perimeter";
-                        total = "TOTAL";
-                        area = "Area";                        
-                        break;
-                    case Italiano:
-                        sb.Append("<h1>Rapporti sui moduli</h1>");
-                        formadescripcion = "forme";
-                        perimetrodescripcion = "Perimetro";
-                        total = "TOTALE";
-                        area = "Area";
-                        break;
-                }
-
+                sb.Append(TraducirLista(idioma));
                 var formasData = new Dictionary<string, (int cantidad, decimal area, decimal perimetro)>();
 
                 foreach (var forma in formas)
@@ -112,87 +72,25 @@ namespace DevelopmentChallenge.Data.Classes
                     }
 
                     formasData[tipo] = (
-                        formasData[tipo].cantidad + 1,
-                        formasData[tipo].area + forma.CalcularArea(),
-                        formasData[tipo].perimetro + forma.CalcularPerimetro());
-
+                    formasData[tipo].cantidad + 1,
+                    formasData[tipo].area + forma.CalcularArea(),
+                    formasData[tipo].perimetro + forma.CalcularPerimetro());
                 }
-
 
                 foreach (var forma in formasData)
                 {
-                    sb.Append(ObtenerLinea(forma.Value.cantidad, forma.Value.area, forma.Value.perimetro, int.Parse(forma.Key), idioma,area, perimetrodescripcion));
+                    sb.Append(ObtenerLinea(forma.Value.cantidad, forma.Value.area, forma.Value.perimetro, int.Parse(forma.Key), idioma,TraducirAreaDes(idioma), TraducirPerimetroDes(idioma)));
                 }
                 var totalFormas = formasData.Sum(f => f.Value.cantidad);
                 var totalPerimetro = formasData.Sum(f => f.Value.perimetro);
                 var totalArea = formasData.Sum(f => f.Value.area);
 
-                sb.Append(total + ":<br/>");
-                sb.Append(totalFormas + " " + formadescripcion + " ");
-                sb.Append(perimetrodescripcion + " " + totalPerimetro.ToString("#.##") + " ");
-                sb.Append(area + " " + totalArea.ToString("#.##"));
-
+                sb.Append(TraducirTotalDes(idioma) + ":<br/>");
+                sb.Append(totalFormas + " " + TraducirFormasDes(idioma) + " ");
+                sb.Append(TraducirPerimetroDes(idioma) + " " + totalPerimetro.ToString("#.##") + " ");
+                sb.Append(TraducirAreaDes(idioma) + " " + totalArea.ToString("#.##"));
             }
             return sb.ToString();
-        }
-
-        private static string ObtenerLinea(int cantidad, decimal area, decimal perimetro, int tipo, int idioma, string Tarea,string Tperimetro)
-        {
-            if (cantidad <= 0) return string.Empty;
-            return $"{cantidad} {TraducirForma(tipo, cantidad, idioma)} | {Tarea} {area:#.##} | {Tperimetro} {perimetro:#.##} <br/>";
-        }
-
-        private static string TraducirForma(int tipo, int cantidad, int idioma)
-        {
-           switch (tipo)
-            {
-                case Cuadrado:
-                    switch (idioma)
-                    {
-                        case Castellano:
-                            return cantidad == 1 ? "Cuadrado" : "Cuadrados";
-                        case Ingles:
-                            return cantidad == 1 ? "Square" : "Squares";
-                        case Italiano:
-                            return cantidad == 1 ? "Quadrato" : "Quadrati";
-                    }
-                    break;
-                case Circulo:
-                    switch (idioma)
-                    {
-                        case Castellano:
-                            return cantidad == 1 ? "Círculo" : "Círculos";
-                        case Ingles:
-                            return cantidad == 1 ? "Circle" : "Circles";
-                        case Italiano:
-                            return cantidad == 1 ? "Cerchio" : "Cerchi";
-                    }
-                    break;
-                case TrianguloEquilatero:
-                    switch (idioma)
-                    {
-                        case Castellano:
-                            return cantidad == 1 ? "Triángulo" : "Triángulos";
-                        case Ingles:
-                            return cantidad == 1 ? "Triangle" : "Triangles";
-                        case Italiano:
-                            return cantidad == 1 ? "Triangolo" : "Triangoli";
-                    }
-                    break;
-
-                case Rectangulo:
-                    switch (idioma)
-                    {
-                        case Castellano:
-                            return cantidad == 1 ? "Rectángulo" : "Rectangulos";
-                        case Ingles:
-                            return cantidad == 1 ? "Rectangle" : "Rectangles";
-                        case Italiano:
-                            return cantidad == 1 ? "Rettangolo" : "Rettangoli";
-                    }
-                    break;
-            }
-            return string.Empty;
         }
 
         private decimal CalcularArea()
@@ -219,6 +117,117 @@ namespace DevelopmentChallenge.Data.Classes
                 default:
                     throw new ArgumentOutOfRangeException(@"Forma desconocida");
             }
+        }
+
+        private static string TraducirTotalDes(int Idioma)
+        {
+            switch (Idioma)
+            {
+                case Castellano: return "TOTAL";
+                case Ingles: return "TOTAL";
+                case Italiano: return "TOTALE";
+            }
+            return string.Empty;
+        }
+
+        private static string TraducirAreaDes(int Idioma)
+        {
+            switch (Idioma)
+            {
+                case Castellano: return "Area";
+                case Ingles: return "Area";
+                case Italiano: return "Area";
+            }
+            return string.Empty;
+        }
+
+        private static string TraducirLista(int Idioma)
+        {
+            switch (Idioma)
+            {
+                case Castellano:return "<h1>Reporte de Formas</h1>";
+                case Ingles:return "<h1>Shapes report</h1>";
+                case Italiano:return "<h1>Rapporti sui moduli</h1>";
+            }
+            return string.Empty;
+        }
+
+        private static string TraducirListaVacia(int Idioma)
+        {
+            switch (Idioma)
+            {
+                case Castellano: return "<h1>Lista vacía de formas!</h1>";
+                case Ingles: return "<h1>Empty list of shapes!</h1>";
+                case Italiano: return "<h1>Lista vuota di forme!</h1>";
+            }
+            return string.Empty;
+        }
+
+        private static string TraducirFormasDes(int Idioma)
+        {
+            switch (Idioma)
+            {
+                case Castellano:return "formas";
+                case Ingles:return "shapes";
+                case Italiano:return "forme";
+            }
+            return string.Empty;
+        }
+        private static string TraducirPerimetroDes(int Idioma)
+        {
+            switch (Idioma)
+            {
+                case Castellano: return "Perimetro";
+                case Ingles: return "Perimeter";
+                case Italiano: return "Perimetro";
+            }
+            return string.Empty;
+        }
+        private static string ObtenerLinea(int cantidad, decimal area, decimal perimetro, int tipo, int idioma, string Tarea,string Tperimetro)
+        {
+            if (cantidad <= 0) return string.Empty;
+            return $"{cantidad} {TraducirForma(tipo, cantidad, idioma)} | {Tarea} {area:#.##} | {Tperimetro} {perimetro:#.##} <br/>";
+        }
+
+        private static string TraducirForma(int tipo, int cantidad, int idioma)
+        {
+           switch (tipo)
+            {
+                case Cuadrado:
+                    switch (idioma)
+                    {
+                        case Castellano: return cantidad == 1 ? "Cuadrado" : "Cuadrados";
+                        case Ingles: return cantidad == 1 ? "Square" : "Squares";
+                        case Italiano: return cantidad == 1 ? "Quadrato" : "Quadrati";
+                    }
+                    break;
+                case Circulo:
+                    switch (idioma)
+                    {
+                        case Castellano: return cantidad == 1 ? "Círculo" : "Círculos";
+                        case Ingles: return cantidad == 1 ? "Circle" : "Circles";
+                        case Italiano: return cantidad == 1 ? "Cerchio" : "Cerchi";
+                    }
+                    break;
+                case TrianguloEquilatero:
+                    switch (idioma)
+                    {
+                        case Castellano: return cantidad == 1 ? "Triángulo" : "Triángulos";
+                        case Ingles: return cantidad == 1 ? "Triangle" : "Triangles";
+                        case Italiano: return cantidad == 1 ? "Triangolo" : "Triangoli";
+                    }
+                    break;
+
+                case Rectangulo:
+                    switch (idioma)
+                    {
+                        case Castellano: return cantidad == 1 ? "Rectángulo" : "Rectangulos";
+                        case Ingles: return cantidad == 1 ? "Rectangle" : "Rectangles";
+                        case Italiano: return cantidad == 1 ? "Rettangolo" : "Rettangoli";
+                    }
+                    break;
+            }
+            return string.Empty;
         }
     }
 }
